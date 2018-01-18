@@ -15,6 +15,11 @@ import wave
 
 from progressbar import ProgressBar, Percentage, Bar, ETA
 
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
+
 from autosub.constants import (
     LANGUAGE_CODES, GOOGLE_SPEECH_API_KEY, GOOGLE_SPEECH_API_URL,
 )
@@ -263,6 +268,17 @@ def main():
     return 0
 
 
+class FakePool(object):
+    def imap(self, func, *iterables):
+        return map(func, *iterables)
+
+    def terminate(self):
+        pass
+
+    def join(self):
+        pass
+
+
 def generate_subtitles(
     source_path,
     output=None,
@@ -276,7 +292,12 @@ def generate_subtitles(
 
     regions = find_speech_regions(audio_filename)
 
-    pool = multiprocessing.Pool(concurrency)
+    try:
+        pool = multiprocessing.Pool(concurrency)
+    except OSError:
+        # Multiprocessing not available eg on AWS Lambda
+        pool = FakePool()
+
     converter = FLACConverter(source_path=audio_filename)
     recognizer = SpeechRecognizer(language=src_language, rate=audio_rate,
                                   api_key=GOOGLE_SPEECH_API_KEY)
