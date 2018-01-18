@@ -15,11 +15,6 @@ import wave
 
 from progressbar import ProgressBar, Percentage, Bar, ETA
 
-try:
-    import itertools.imap as map
-except ImportError:
-    pass
-
 from autosub.constants import (
     LANGUAGE_CODES, GOOGLE_SPEECH_API_KEY, GOOGLE_SPEECH_API_URL,
 )
@@ -268,17 +263,6 @@ def main():
     return 0
 
 
-class FakePool(object):
-    def imap(self, func, *iterables):
-        return map(func, *iterables)
-
-    def terminate(self):
-        pass
-
-    def join(self):
-        pass
-
-
 def generate_subtitles(
     source_path,
     output=None,
@@ -294,9 +278,14 @@ def generate_subtitles(
 
     try:
         pool = multiprocessing.Pool(concurrency)
+        map_func = pool.imap
     except OSError:
         # Multiprocessing not available eg on AWS Lambda
-        pool = FakePool()
+        pool = None
+        try:
+            import itertools.imap as map_func  # Python 2
+        except ImportError:
+            map_func = map
 
     converter = FLACConverter(source_path=audio_filename)
     recognizer = SpeechRecognizer(language=src_language, rate=audio_rate,
@@ -309,7 +298,7 @@ def generate_subtitles(
                        ETA()]
             pbar = ProgressBar(widgets=widgets, maxval=len(regions)).start()
             extracted_regions = []
-            for i, extracted_region in enumerate(pool.imap(converter, regions)):
+            for i, extracted_region in enumerate(map_func(converter, regions)):
                 extracted_regions.append(extracted_region)
                 pbar.update(i)
             pbar.finish()
@@ -317,7 +306,7 @@ def generate_subtitles(
             widgets = ["Performing speech recognition: ", Percentage(), ' ', Bar(), ' ', ETA()]
             pbar = ProgressBar(widgets=widgets, maxval=len(regions)).start()
 
-            for i, transcript in enumerate(pool.imap(recognizer, extracted_regions)):
+            for i, transcript in enumerate(map_func(recognizer, extracted_regions)):
                 transcripts.append(transcript)
                 pbar.update(i)
             pbar.finish()
@@ -332,7 +321,7 @@ def generate_subtitles(
                     widgets = [prompt, Percentage(), ' ', Bar(), ' ', ETA()]
                     pbar = ProgressBar(widgets=widgets, maxval=len(regions)).start()
                     translated_transcripts = []
-                    for i, transcript in enumerate(pool.imap(translator, transcripts)):
+                    for i, transcript in enumerate(map_func(translator, transcripts)):
                         translated_transcripts.append(transcript)
                         pbar.update(i)
                     pbar.finish()
@@ -346,8 +335,9 @@ def generate_subtitles(
 
         except KeyboardInterrupt:
             pbar.finish()
-            pool.terminate()
-            pool.join()
+            if pool:
+                pool.terminate()
+                pool.join()
             print("Cancelling transcription")
             raise
 
