@@ -19,7 +19,7 @@ from autosub.constants import (
     DEFAULT_RECOGNIZER,
 )
 from autosub.formatters import FORMATTERS
-from autosub.recognizers import RECOGNIZERS
+# from autosub.recognizers import RECOGNIZERS
 
 
 def main():
@@ -45,8 +45,8 @@ def main():
                         action='store_true')
     parser.add_argument('--list-languages', help="List all available source/destination languages",
                         action='store_true')
-    parser.add_argument('--list-recognizers', help="List all available recognizers",
-                        action='store_true')
+    # parser.add_argument('--list-recognizers', help="List all available recognizers",
+    #                     action='store_true')
 
     args = parser.parse_args()
 
@@ -62,11 +62,11 @@ def main():
             print("{code}\t{language}".format(code=code, language=language))
         return 0
 
-    if args.list_recognizers:
-        print("List of available recognizers:")
-        for code, detail in sorted(RECOGNIZERS.items()):
-            print("{code}\t{detail}".format(code=code, detail=detail))
-        return 0
+    # if args.list_recognizers:
+    #     print("List of available recognizers:")
+    #     for code, detail in sorted(RECOGNIZERS.items()):
+    #         print("{code}\t{detail}".format(code=code, detail=detail))
+    #     return 0
 
     if args.format not in FORMATTERS.keys():
         print(
@@ -75,12 +75,12 @@ def main():
         )
         return 1
 
-    if args.recognizer not in RECOGNIZERS.keys():
-        print(
-            "Speech recognition module not found. "
-            "Run with --list-recognizers to see all supported modules."
-        )
-        return 1
+    # if args.recognizer not in RECOGNIZERS.keys():
+    #     print(
+    #         "Speech recognition module not found. "
+    #         "Run with --list-recognizers to see all supported modules."
+    #     )
+    #     return 1
 
     if args.src_language not in LANGUAGE_CODES.keys():
         print(
@@ -174,7 +174,7 @@ def generate_subtitles(
     recognizer=DEFAULT_RECOGNIZER,
     google_translate_api_key=None,
 ):
-    recognizer_module = importlib.import_module(f'autosub.recognizers.{recognizer}')
+    recognizer_module = importlib.import_module('autosub.recognizers.{}'.format(recognizer))
 
     subtitles = recognizer_module.generate_subtitles(
         source_path=source_path,
