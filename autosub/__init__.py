@@ -10,7 +10,7 @@ import importlib
 import os
 import sys
 
-from autosub.constants import (
+from .constants import (
     LANGUAGE_CODES,
     DEFAULT_CONCURRENCY,
     DEFAULT_SUBTITLE_FORMAT,
@@ -18,8 +18,12 @@ from autosub.constants import (
     DEFAULT_DST_LANGUAGE,
     DEFAULT_RECOGNIZER,
 )
-from autosub.formatters import FORMATTERS
-# from autosub.recognizers import RECOGNIZERS
+from .formatters import FORMATTERS
+from .recognizers import (
+    RECOGNIZERS,
+    google_speech,
+    google_cloud_speech,
+)
 
 
 def main():
@@ -174,11 +178,12 @@ def generate_subtitles(
     recognizer=DEFAULT_RECOGNIZER,
     google_translate_api_key=None,
 ):
-    print(f'package: {__package__}')
-    recognizer_module = importlib.import_module(
-        '.recognizers.{}'.format(recognizer),
-        package=str(__package__),
-    )
+    # print(f'package: {__package__}')
+    # recognizer_module = importlib.import_module(
+    #     '.recognizers.{}'.format(recognizer),
+    #     package=str(__package__),
+    # )
+    recognizer_module = google_cloud_speech
 
     subtitles = recognizer_module.generate_subtitles(
         source_path=source_path,
