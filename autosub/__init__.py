@@ -19,6 +19,7 @@ from autosub.constants import (
     DEFAULT_RECOGNIZER,
 )
 from autosub.formatters import FORMATTERS
+from autosub.recognizers import RECOGNIZERS
 
 
 def main():
@@ -30,6 +31,8 @@ def main():
     parser.add_argument('-o', '--output',
                         help="Output path for subtitles (by default, subtitles are saved in \
                         the same directory and name as the source path)")
+    parser.add_argument('-R', '--recognizer', help="Speech recognition module to use",
+                        default=DEFAULT_RECOGNIZER)
     parser.add_argument('-F', '--format', help="Destination subtitle format",
                         default=DEFAULT_SUBTITLE_FORMAT)
     parser.add_argument('-S', '--src-language', help="Language spoken in source file",
@@ -41,6 +44,8 @@ def main():
     parser.add_argument('--list-formats', help="List all available subtitle formats",
                         action='store_true')
     parser.add_argument('--list-languages', help="List all available source/destination languages",
+                        action='store_true')
+    parser.add_argument('--list-recognizers', help="List all available recognizers",
                         action='store_true')
 
     args = parser.parse_args()
@@ -57,10 +62,23 @@ def main():
             print("{code}\t{language}".format(code=code, language=language))
         return 0
 
+    if args.list_recognizers:
+        print("List of available recognizers:")
+        for code, detail in sorted(RECOGNIZERS.items()):
+            print("{code}\t{detail}".format(code=code, detail=detail))
+        return 0
+
     if args.format not in FORMATTERS.keys():
         print(
             "Subtitle format not supported. "
             "Run with --list-formats to see all supported formats."
+        )
+        return 1
+
+    if args.recognizer not in RECOGNIZERS.keys():
+        print(
+            "Speech recognition module not found. "
+            "Run with --list-recognizers to see all supported modules."
         )
         return 1
 
@@ -91,6 +109,7 @@ def main():
             dst_language=args.dst_language,
             subtitle_file_format=args.format,
             google_translate_api_key=args.api_key,
+            recognizer=args.recognizer,
         )
 
         print("Subtitles file created at {}".format(timed_subtitle_filename))

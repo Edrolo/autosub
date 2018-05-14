@@ -3,8 +3,6 @@ import json
 import math
 import multiprocessing
 import os
-import subprocess
-import tempfile
 import wave
 
 import requests
@@ -27,7 +25,7 @@ from autosub.translators import Translator
 from autosub.utils import (
     percentile,
     is_same_language,
-    which,
+    extract_audio,
 )
 
 
@@ -110,20 +108,6 @@ def generate_subtitles(
 
     timed_subtitles = [(r, t) for r, t in zip(regions, transcripts) if t]
     return timed_subtitles
-
-
-def extract_audio(filename, channels=1, rate=16000):
-    temp = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
-    if not os.path.isfile(filename):
-        print("The given file does not exist: {0}".format(filename))
-        raise Exception("Invalid filepath: {0}".format(filename))
-    if not which("ffmpeg"):
-        print("ffmpeg: Executable not found on machine.")
-        raise Exception("Dependency not found: ffmpeg")
-    command = ["ffmpeg", "-y", "-i", filename, "-ac", str(channels), "-ar", str(rate), "-loglevel", "error", temp.name]
-    use_shell = True if os.name == "nt" else False
-    subprocess.check_output(command, stdin=open(os.devnull), shell=use_shell)
-    return temp.name, rate
 
 
 def find_speech_regions(filename, frame_width=4096, min_region_size=0.5, max_region_size=6):
