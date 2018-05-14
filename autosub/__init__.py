@@ -174,7 +174,11 @@ def generate_subtitles(
     recognizer=DEFAULT_RECOGNIZER,
     google_translate_api_key=None,
 ):
-    recognizer_module = importlib.import_module('autosub.recognizers.{}'.format(recognizer))
+    print(f'package: {__package__}')
+    recognizer_module = importlib.import_module(
+        '.recognizers.{}'.format(recognizer),
+        package=str(__package__),
+    )
 
     subtitles = recognizer_module.generate_subtitles(
         source_path=source_path,
