@@ -1,11 +1,12 @@
-import googleapiclient.discovery
+print('importing translators.py')
+from googleapiclient.discovery import build
 
 
 class Translator(object):
     def __init__(self, language, api_key, src, dst):
         self.language = language
         self.api_key = api_key
-        self.service = googleapiclient.discovery.build(
+        self.service = build(
             'translate', 'v2', developerKey=self.api_key)
         self.src = src
         self.dst = dst
@@ -29,3 +30,5 @@ class Translator(object):
 
         except KeyboardInterrupt:
             return
+
+print('Finished importing translators.py')

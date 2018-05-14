@@ -1,3 +1,4 @@
+print('importing google_cloud_speech.py')
 import io
 
 from autosub.phrasing import (
@@ -7,6 +8,7 @@ from autosub.phrasing import (
 from autosub.utils import extract_audio
 
 from pprint import pprint as p
+
 """
 Grab flac from video: ffmpeg -i video.mp4 audio.flac
 Audio needs to be in mono: ffmpeg -i stereo.flac -ac 1 mono.flac
@@ -76,3 +78,5 @@ def recognize(source_path):
     )
 
     return Transcript(word_info_list)
+
+print('finished importing google_cloud_speech.py')

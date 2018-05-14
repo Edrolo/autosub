@@ -1,3 +1,4 @@
+print('importing google_speech.py')
 import audioop
 import json
 import math
@@ -175,3 +176,5 @@ class SpeechRecognizer(object):
 
         except KeyboardInterrupt:
             return
+
+print('finished importing google_speech.py')
