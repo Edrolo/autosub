@@ -2,6 +2,12 @@ from __future__ import unicode_literals
 GOOGLE_SPEECH_API_KEY = "AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw"
 GOOGLE_SPEECH_API_URL = "http://www.google.com/speech-api/v2/recognize?client=chromium&lang={lang}&key={key}"
 
+DEFAULT_SUBTITLE_FORMAT = 'srt'
+DEFAULT_CONCURRENCY = 10
+DEFAULT_SRC_LANGUAGE = 'en'
+DEFAULT_DST_LANGUAGE = 'en'
+DEFAULT_RECOGNIZER = 'google_speech'
+
 LANGUAGE_CODES = {
     'af': 'Afrikaans',
     'ar': 'Arabic',

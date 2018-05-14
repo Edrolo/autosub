@@ -21,6 +21,7 @@ def srt_formatter(subtitles, show_before=0, show_after=0):
 
 def vtt_formatter(subtitles, show_before=0, show_after=0):
     text = srt_formatter(subtitles, show_before, show_after)
+    # FIXME: This will replace commas in the text as well as the timestamps
     text = 'WEBVTT\n\n' + text.replace(',', '.')
     return text
 
