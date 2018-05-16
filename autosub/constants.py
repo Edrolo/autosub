@@ -7,7 +7,6 @@ DEFAULT_CONCURRENCY = 10
 DEFAULT_SRC_LANGUAGE = 'en'
 DEFAULT_DST_LANGUAGE = 'en'
 DEFAULT_RECOGNIZER = 'google_speech'
-TEST_CONSTANT = 'test'
 
 LANGUAGE_CODES = {
     'af': 'Afrikaans',

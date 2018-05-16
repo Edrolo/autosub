@@ -1,4 +1,3 @@
-print('importing google_speech.py')
 import audioop
 import json
 import math
@@ -8,25 +7,25 @@ import wave
 
 import requests
 from progressbar import (
-    Percentage,
     Bar,
     ETA,
+    Percentage,
     ProgressBar,
 )
 
 from autosub.constants import (
     DEFAULT_CONCURRENCY,
-    DEFAULT_SRC_LANGUAGE,
     DEFAULT_DST_LANGUAGE,
+    DEFAULT_SRC_LANGUAGE,
     GOOGLE_SPEECH_API_KEY,
     GOOGLE_SPEECH_API_URL,
 )
 from autosub.converters import FLACConverter
 from autosub.translators import Translator
 from autosub.utils import (
-    percentile,
-    is_same_language,
     extract_audio,
+    is_same_language,
+    percentile,
 )
 
 
@@ -36,6 +35,7 @@ def generate_subtitles(
     src_language=DEFAULT_SRC_LANGUAGE,
     dst_language=DEFAULT_DST_LANGUAGE,
     google_translate_api_key=None,
+    **extra_options
 ):
     audio_filename, audio_rate = extract_audio(source_path)
 
@@ -118,7 +118,7 @@ def find_speech_regions(filename, frame_width=4096, min_region_size=0.5, max_reg
     n_channels = reader.getnchannels()
     chunk_duration = float(frame_width) / rate
 
-    n_chunks = int(math.ceil(reader.getnframes()*1.0 / frame_width))
+    n_chunks = int(math.ceil(reader.getnframes() * 1.0 / frame_width))
     energies = []
 
     for i in range(n_chunks):
@@ -176,5 +176,3 @@ class SpeechRecognizer(object):
 
         except KeyboardInterrupt:
             return
-
-print('finished importing google_speech.py')

@@ -19,11 +19,7 @@ from .constants import (
     DEFAULT_RECOGNIZER,
 )
 from .formatters import FORMATTERS
-from .recognizers import (
-    RECOGNIZERS,
-    google_speech,
-    google_cloud_speech,
-)
+from .recognizers import RECOGNIZERS
 
 
 def main():
@@ -149,6 +145,7 @@ def generate_subtitle_file(
     subtitle_file_format=DEFAULT_SUBTITLE_FORMAT,
     recognizer=DEFAULT_RECOGNIZER,
     google_translate_api_key=None,
+    **extra_options
 ):
     timed_subtitles = generate_subtitles(
         source_path=source_path,
@@ -157,6 +154,7 @@ def generate_subtitle_file(
         dst_language=dst_language,
         recognizer=recognizer,
         google_translate_api_key=google_translate_api_key,
+        **extra_options
     )
 
     dst_subtitle_filename = dst_subtitle_filename or generate_subtitle_filename(source_path, subtitle_file_format)
@@ -177,13 +175,11 @@ def generate_subtitles(
     dst_language=DEFAULT_DST_LANGUAGE,
     recognizer=DEFAULT_RECOGNIZER,
     google_translate_api_key=None,
+    **extra_options
 ):
-    # print(f'package: {__package__}')
-    # recognizer_module = importlib.import_module(
-    #     '.recognizers.{}'.format(recognizer),
-    #     package=str(__package__),
-    # )
-    recognizer_module = google_cloud_speech
+    recognizer_module = importlib.import_module(
+        'autosub.recognizers.{}'.format(recognizer),
+    )
 
     subtitles = recognizer_module.generate_subtitles(
         source_path=source_path,
@@ -191,6 +187,7 @@ def generate_subtitles(
         src_language=src_language,
         dst_language=dst_language,
         google_translate_api_key=google_translate_api_key,
+        **extra_options
     )
 
     return subtitles

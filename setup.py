@@ -20,7 +20,7 @@ long_description = (
 
 setup(
     name='autosub',
-    version='0.4.0b4',
+    version='0.4.0b5',
     description='Auto-generates subtitles for any video or audio file',
     long_description=long_description,
     author='Anastasis Germanidis',
@@ -39,9 +39,10 @@ setup(
         'progressbar2>=3.34.3',
         'six>=1.11.0',
     ],
-    extras_require= {
+    extras_require={
         'google_cloud_speech': [
             'google-cloud-speech>=0.34.0',
+            'google-cloud-storage>=1.9.0',
         ],
     },
     license=open("LICENSE").read()

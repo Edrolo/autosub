@@ -1,4 +1,3 @@
-print('importing translators.py')
 from googleapiclient.discovery import build
 
 
@@ -30,5 +29,3 @@ class Translator(object):
 
         except KeyboardInterrupt:
             return
-
-print('Finished importing translators.py')

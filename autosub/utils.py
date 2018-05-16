@@ -1,4 +1,3 @@
-print('importing utils.py')
 import math
 import os
 import subprocess
@@ -46,9 +45,8 @@ def extract_audio(filename, channels=1, rate=16000, extension='wav'):
     if not which("ffmpeg"):
         print("ffmpeg: Executable not found on machine.")
         raise Exception("Dependency not found: ffmpeg")
-    command = ["ffmpeg", "-y", "-i", filename, "-ac", str(channels), "-ar", str(rate), "-loglevel", "error", temp.name]
+    command = ["ffmpeg", "-y", "-i", filename, "-ac", str(channels), "-ar", str(rate), "-loglevel",
+               "error", temp.name]
     use_shell = True if os.name == "nt" else False
     subprocess.check_output(command, stdin=open(os.devnull), shell=use_shell)
     return temp.name, rate
-
-print('finished importing utils.py')

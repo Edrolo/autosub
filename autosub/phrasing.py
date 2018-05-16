@@ -1,4 +1,3 @@
-print('importing phrasing.py')
 from typing import NamedTuple
 
 import logging
@@ -141,5 +140,3 @@ def build_word_info_list_from_cloud_speech_recognize_response(recognize_response
 
 MAX_CHARACTERS_PER_LINE = 35
 MAX_LINES_VISIBLE = 2
-
-print('finished importing phrasing.py')
