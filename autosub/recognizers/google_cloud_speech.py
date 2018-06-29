@@ -96,10 +96,10 @@ def recognize(source_path, hint_phrases=None):
     log.info('Waiting for recognition to complete...')
     recognize_response = operation.result(timeout=90)
 
-    p(recognize_response.results)
+    # p(recognize_response.results)
 
-    # for result in response.results:
-    #     print('Transcript: {}'.format(result.alternatives[0].transcript))
+    for result in recognize_response.results:
+        log.info('Transcript: {}'.format(result.alternatives[0].transcript))
 
     word_info_list = build_word_info_list_from_cloud_speech_recognize_response(
         recognize_response=recognize_response,
