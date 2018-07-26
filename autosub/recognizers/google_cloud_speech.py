@@ -22,14 +22,29 @@ import logging
 log = logging.getLogger(__name__)
 
 
+def remove_ums(sentence):
+    blacklist = [
+        'um',
+        'uh',
+    ]
+    return [
+        word_info for word_info in sentence.word_info_list
+        if word_info.without_punctuation.lower() not in blacklist
+    ]
+
+
 def generate_subtitles(source_path, **extra_options):
     transcript = recognize(
         source_path=source_path,
         hint_phrases=extra_options.get('hint_phrases', []),
     )
+    sentences_without_ums = [
+        sentence.filter(remove_ums)
+        for sentence in transcript.sentences()
+    ]
     single_line_sentences = [
         ((sentence.start_time, sentence.end_time), str(sentence))
-        for sentence in transcript.sentences()
+        for sentence in sentences_without_ums
     ]
     log.debug(single_line_sentences)
     return single_line_sentences
