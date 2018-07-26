@@ -129,8 +129,8 @@ def recognize(source_path, hint_phrases=None):
 
     # p(recognize_response.results)
 
-    for result in recognize_response.results:
-        log.info('Transcript: {}'.format(result.alternatives[0].transcript))
+    # for result in recognize_response.results:
+    #     log.info('Transcript: {}'.format(result.alternatives[0].transcript))
 
     word_info_list = build_word_info_list_from_cloud_speech_recognize_response(
         recognize_response=recognize_response,
