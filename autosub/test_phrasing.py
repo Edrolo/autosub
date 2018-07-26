@@ -178,6 +178,12 @@ def test_sentence_remove_um_transform(single_sentence_with_ums):
     assert str(sentence_without_ums) == 'Hello, my name is Monty.'
 
 
+def test_sentence_remove_um_transform_capitalizes_if_required():
+    sentence_starting_with_um = sentence_factory('Um, hello.')
+    [sentence_without_ums] = sentence_starting_with_um.transform(remove_ums)
+    assert str(sentence_without_ums) == 'Hello.'
+
+
 def transcript_factory(string_of_words):
     words = string_of_words.split()
     print('Factoring words:')

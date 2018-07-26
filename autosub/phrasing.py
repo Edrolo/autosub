@@ -64,6 +64,14 @@ class WordInfo(NamedTuple):
     def without_punctuation(self):
         return self.word.strip(self.punctuation_characters)
 
+    @property
+    def capitalized(self):
+        return WordInfo(
+            word=self.word[0].upper() + self.word[1:],
+            start_time=self.start_time,
+            end_time=self.end_time,
+        )
+
 
 class WordSequence:
     word_info_list = []

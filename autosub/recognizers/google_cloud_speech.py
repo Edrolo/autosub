@@ -27,10 +27,17 @@ def remove_ums(sequence):
         'um',
         'uh',
     ]
-    return [[
-        word_info for word_info in sequence.word_info_list
-        if word_info.without_punctuation.lower() not in blacklist
-    ]]
+    words = []
+    capitalize_next_word = False
+
+    for word_info in sequence.word_info_list:
+        if word_info.without_punctuation.lower() in blacklist:
+            capitalize_next_word = word_info.without_punctuation[0].isupper()
+        else:
+            words.append(word_info.capitalized if capitalize_next_word else word_info)
+            capitalize_next_word = False
+
+    return [words]  # Note this is a list of one list
 
 
 def generate_subtitles(source_path, **extra_options):
