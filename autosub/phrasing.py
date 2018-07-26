@@ -55,7 +55,7 @@ class WordInfo(NamedTuple):
 
     @property
     def ends_sentence(self):
-        sentence_ending_strings = ('.', '!', '?')
+        sentence_ending_strings = ('.', '!', '?', '."', '!"', '?"')
         misleading_strings = ('...', )
         return (self.word.endswith(sentence_ending_strings)
                 and not self.word.endswith(misleading_strings))
@@ -68,8 +68,10 @@ class WordInfo(NamedTuple):
 class WordSequence:
     word_info_list = []
 
-    def __init__(self, word_info_list=None):
-        self.word_info_list = word_info_list or []
+    def __init__(self, word_info_list: List[WordInfo]):
+        if not word_info_list:
+            raise ValueError('Cannot create a WordSequence with an empty word_info_list')
+        self.word_info_list = word_info_list
 
     def __str__(self):
         return ' '.join((word_info.word for word_info in self.word_info_list))
@@ -89,12 +91,12 @@ class WordSequence:
                                 self.word_info_list, other.word_info_list)))
         return False
 
-    def filter(self, func):
-        """Accepts a filter function that accepts a `WordSequence` as a parameter
+    def transform(self, func):
+        """Accepts a transform function that accepts a `WordSequence` as a parameter
         and returns a list of `WordInfo`s
-        Returns a new `WordSequence` built from the list of `WordInfo`s
+        Returns a generator of new `WordSequences` built from the list of `WordInfo`s
         """
-        return WordSequence(func(self))
+        return (WordSequence(word_info_list) for word_info_list in func(self))
 
     @property
     def start_time(self):
@@ -107,6 +109,45 @@ class WordSequence:
     @property
     def duration(self):
         return self.end_time - self.start_time
+
+    def wrap(self, width=0):
+        """Split the sequence into a list of sequences, all with less than x characters"""
+        if width <= 0:
+            return [WordSequence(self.word_info_list)]
+
+        sequences = []
+        current_word_info_list = []
+
+        for word in self.word_info_list:
+
+            # Create a new sequence with one more word, and test its length
+            # (Not a very efficient algorithm)
+            new_sequence = WordSequence(current_word_info_list + [word])
+
+            if len(str(new_sequence)) > width:
+                # We're past the max line length now
+
+                # If a single word is longer than the max, just put it on a line by itself.
+                if len(new_sequence) == 1:
+                    sequences.append(new_sequence)
+                    # sequences.append(current_sequence)
+
+                # If we have words in the current word list already, add that sequence to the list
+                # Reset the current word list to just the new word.
+                else:
+                    sequence_without_extra_word = WordSequence(current_word_info_list)
+                    sequences.append(sequence_without_extra_word)
+                    current_word_info_list = [word]
+
+            else:
+                # The word fits on the line, so add it to the current word list
+                current_word_info_list.append(word)
+
+        # Catch the last one
+        if current_word_info_list:
+            sequences.append(WordSequence(current_word_info_list))
+
+        return sequences
 
 
 class Transcript:
@@ -145,8 +186,7 @@ class Transcript:
 
         while next_index < len(self.word_info_list):
             end_of_next_sentence = self._find_end_of_next_sentence(
-                starting_from=next_index,
-            )
+                starting_from=next_index, )
             log.debug(f'Found end of next sentence at {end_of_next_sentence}')
             next_sentence = self._get_word_sequence(
                 start=next_index,

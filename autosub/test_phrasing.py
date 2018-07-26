@@ -1,3 +1,5 @@
+import textwrap
+
 import pytest
 import yaml
 
@@ -164,13 +166,15 @@ def test_sentence_breakup(transcript_from_file):
     ]
 
 
-def test_sentences_property(single_sentence_with_ums):
-    sentence_without_ums = single_sentence_with_ums.filter(remove_ums)
-    assert str(sentence_without_ums) == 'Hello, my name is Monty.'
+def test_sentences_property():
+    sentence_string = 'Hello, my name is Monty.'
+    transcript = transcript_factory(sentence_string)
+    first_sentence = next(transcript.sentences)
+    assert str(first_sentence) == sentence_string
 
 
-def test_sentence_remove_um_filter(single_sentence_with_ums):
-    sentence_without_ums = single_sentence_with_ums.filter(remove_ums)
+def test_sentence_remove_um_transform(single_sentence_with_ums):
+    [sentence_without_ums] = single_sentence_with_ums.transform(remove_ums)
     assert str(sentence_without_ums) == 'Hello, my name is Monty.'
 
 
@@ -189,3 +193,53 @@ def transcript_factory(string_of_words):
 
 def sentence_factory(string_of_words):
     return next(transcript_factory(string_of_words).sentences)
+
+
+def test_word_info_equality():
+    assert WordInfo('Hello', 1, 2) == WordInfo('Hello', 1, 2)
+
+
+def test_word_info_inequality():
+    assert WordInfo('Hello', 1, 2) != WordInfo('Goodbye', 1, 2)
+
+
+def test_sentence_wrap_max_zero_returns_unchanged(really_long_sentence):
+    max_chars_per_sequence = 0
+    new_word_sequences = really_long_sentence.wrap(width=max_chars_per_sequence)
+    assert new_word_sequences == [really_long_sentence]
+
+
+def test_sentence_wrap_returns_single_word_if_longer_than_max():
+    sentence = sentence_factory('Congratulations')
+    max_chars = 10
+    assert sentence.wrap(width=max_chars) == [sentence]
+
+
+def test_sentence_wrap_splits_two_words():
+    sentence = sentence_factory('Hello there')
+    max_chars = len('Hello')
+    chunks = sentence.wrap(width=max_chars)
+    print(chunks)
+    assert len(chunks) == len(sentence)
+    assert str(chunks[0]) == 'Hello'
+    assert str(chunks[1]) == 'there'
+
+
+def test_long_sentence_wrap(really_long_sentence):
+    max_chars_per_sequence = 100
+    textwrapped_strings = textwrap.wrap(
+        text=str(really_long_sentence),
+        width=max_chars_per_sequence,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
+
+    new_word_sequences = really_long_sentence.wrap(width=max_chars_per_sequence)
+    for seq, textwrapped_string in zip(new_word_sequences, textwrapped_strings):
+        sequence_string = str(seq)
+        assert len(sequence_string) <= max_chars_per_sequence or ' ' not in sequence_string
+        assert sequence_string == textwrapped_string
+
+    total_num_words_after_chunking = sum(len(seq) for seq in new_word_sequences)
+    assert total_num_words_after_chunking == len(really_long_sentence)
+

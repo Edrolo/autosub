@@ -22,32 +22,48 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def remove_ums(sentence):
+def remove_ums(sequence):
     blacklist = [
         'um',
         'uh',
     ]
-    return [
-        word_info for word_info in sentence.word_info_list
+    return [[
+        word_info for word_info in sequence.word_info_list
         if word_info.without_punctuation.lower() not in blacklist
-    ]
+    ]]
 
 
 def generate_subtitles(source_path, **extra_options):
+    DEFAULT_WRAP_WIDTH = 110
+    wrap_width = extra_options.get('wrap_width', DEFAULT_WRAP_WIDTH)
+
     transcript = recognize(
         source_path=source_path,
         hint_phrases=extra_options.get('hint_phrases', []),
     )
+    # log.debug(transcript)
+
     sentences_without_ums = [
-        sentence.filter(remove_ums)
-        for sentence in transcript.sentences()
+        sentence
+        for original_sentence in transcript.sentences
+        for sentence in original_sentence.transform(remove_ums)
     ]
-    single_line_sentences = [
-        ((sentence.start_time, sentence.end_time), str(sentence))
+    # log.debug(sentences_without_ums)
+
+    broken_up_sentences = [
+        wrapped_line
         for sentence in sentences_without_ums
+        for wrapped_line in sentence.wrap(width=wrap_width)
     ]
-    log.debug(single_line_sentences)
-    return single_line_sentences
+    # log.debug(broken_up_sentences)
+
+    single_line_sequences = [
+        ((sequence.start_time, sequence.end_time), str(sequence))
+        for sequence in broken_up_sentences
+    ]
+    log.debug(single_line_sequences)
+
+    return single_line_sequences
 
 
 def recognize(source_path, hint_phrases=None):
